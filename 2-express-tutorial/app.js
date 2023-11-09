@@ -1,5 +1,10 @@
 const http = require('http')
+const {readFileSync} = require('fs')
 
+//get all the information
+const homePage = readFileSync('./index.html')
+
+//creating server
 const server = http.createServer((req, res) => {
     // console.log('User hit the server');
     console.log(req.url);
@@ -10,7 +15,7 @@ const server = http.createServer((req, res) => {
         res.writeHead(200, {
             'Content-Type': 'text/html'
         })
-        res.write('<h1>Home Page</h1>')
+        res.write(homePage)
         res.end()
     }
     //about page
