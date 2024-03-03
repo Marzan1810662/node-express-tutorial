@@ -1,66 +1,42 @@
-const http = require('http')
-const { readFileSync } = require('fs')
+const express = require('express')
+const {products} = require('./data')
+const app = express()
 
-//get all the information
-const homePage = readFileSync('./navbar-app/index.html')
-const homeStyle = readFileSync('./navbar-app/styles.css')
-const homeLogo = readFileSync('./navbar-app/logo.svg')
-const homeLogic = readFileSync('./navbar-app/browser-app.js')
-
-//creating server
-const server = http.createServer((req, res) => {
-    // console.log('User hit the server');
-    console.log(req.url);
-    const url = req.url
-
-    //home page
-    if (url === '/') {
-        res.writeHead(200, {
-            'Content-Type': 'text/html'
-        })
-        res.write(homePage)
-        res.end()
-    }
-    //about page
-    else if (url === '/about') {
-        res.writeHead(200, {
-            'Content-Type': 'text/html'
-        })
-        res.write('<h1>About Page</h1>')
-        res.end()
-    }
-    //home page styles (css file)
-    else if (url === '/styles.css') {
-        res.writeHead(200, {
-            'Content-Type': 'text/css'
-        })
-        res.write(homeStyle)
-        res.end()
-    }
-    //home page logo
-    else if (url === '/logo.svg') {
-        res.writeHead(200, {
-            'Content-Type': 'image/svg+xml'
-        })
-        res.write(homeLogo)
-        res.end()
-    }
-    //home page logics (javascript)
-    else if (url === '/browser-app.js') {
-        res.writeHead(200, {
-            'Content-Type': 'text/javascript'
-        })
-        res.write(homeLogic)
-        res.end()
-    }
-    //404
-    else {
-        res.writeHead(404, {
-            'Content-Type': 'text/html'
-        })
-        res.write('<h1>Page Not Found!</h1>')
-        res.end()
-    }
+app.get('/',(req,res)=>{
+    res.send('<h1>Home Page</h1><a href = "/api/products">Products</a>')
 })
 
-server.listen(5000)
+app.get('/api/products',(req,res)=>{
+    const newProducts = products.map((product)=>{
+        const {id,name,image} = product
+        return {id,name,image}
+    })
+    res.json(newProducts)
+})
+
+app.get('/api/products/:productId',(req,res) =>{
+    // console.log(req);
+    // console.log(req.params);
+    const {productId} = req.params
+    const singleProduct = products.find((product)=>{
+        return product.id === Number(productId)
+    })
+    // console.log(singleProduct);
+    if (!singleProduct){
+        return res.status(404).send('Product does not exist')
+    }
+    res.json(singleProduct)
+})
+
+app.get('/api/products/:productId/reviews/:reviewId',(req,res)=>{
+    console.log(req.params);
+    res.send('Hello world')
+})
+
+// app.all('*', (req,res)=>{
+//     res.status(404).send(`Url is not found`)
+// })
+
+app.listen(5000, (req,res)=>{
+    console.log(`Server is running on port 5000...👍`);
+})
